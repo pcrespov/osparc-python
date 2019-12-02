@@ -1,0 +1,7 @@
+#!/bin/sh
+# Alpine linux default shell is sh, this is a trick to call a bash script
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+/bin/bash do_run

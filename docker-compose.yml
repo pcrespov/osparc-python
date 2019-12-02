@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  osparc-python:
+    image: ${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest
+    command: run
+    build:
+      context: ./
+      dockerfile: src/Dockerfile
+      target: production
+      labels:
+        org.label-schema.schema-version: "1.0"
+        org.label-schema.build-date: "${BUILD_DATE}"
+        org.label-schema.vcs-url: git@github.com:pcrespov/osparc-python.git
+        org.label-schema.vcs-ref: "${VCS_REF}"
+    environment:
+      - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - LOG_FOLDER=/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    init: true
+    volumes:
+      # some defaults to test the service
+      - ./validation/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - ./tmp/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - ./tmp/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
