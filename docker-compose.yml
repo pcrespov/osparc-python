@@ -15,7 +15,7 @@ services:
           "Input data", "description": "Data accessible to the script", "type": "data:*/*"}}}'
         io.simcore.key: '{"key": "simcore/services/comp/osparc-python"}'
         io.simcore.name: '{"name": "osparc python"}'
-        io.simcore.outputs: '{"outputs": {"output_data": {"displayOrder": 1, "label":
+        io.simcore.outputs: '{"outputs": {"output_data.yml": {"displayOrder": 1, "label":
           "Output Data", "description": "Data produced by the script", "type": "data:*/*"}}}'
         io.simcore.type: '{"type": "computational"}'
         io.simcore.version: '{"version": "0.1.0"}'
