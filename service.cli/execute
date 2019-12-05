@@ -1,31 +1,37 @@
 #!/bin/bash
-cd $(dirname $0)
 
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 IFS=$'\n\t'
 
-# ----------------------------------------------------------------
-# This script shall be modified according to the needs in order to run the service
-# The inputs defined in docker/inputs.json are available as env variables by their key in capital letters
-# For example: input_1 -> $INPUT_1
-# call stack:
-# run -> do_run -> execute
+cd $OUTPUT_FOLDER
+echo $CODE >code.py
 
-cd /home/scu/osparc_python
-# put the code to execute the service here
-# and default all outputs to $LOG_FILE
-# For example: java someJavaClass >> $LOG_FILE
+echo "Generating requirements.txt ...">$LOG_FILE
+pipreqs --savepath=requirements.txt --force code.py
+
+echo "Creating environment ...">$LOG_FILE
+python3 -m venv .venv
+.venv/bin/pip install -U pip wheel
+.venv/vin/pip install -r requirements.txt
+
+echo "Executing code ....">$LOG_FILE
+.venv/bin/python3 code.py \
+    >>$LOG_FILE 2>&1
+
+echo "DONE">$LOG_FILE
+
+
 
 # then retrieve the output and move it to the $OUTPUT_FOLDER
 # as defined in the output labels
+
+
 # For example: cp output.csv $OUTPUT_FOLDER or to $OUTPUT_FOLDER/output.json using jq
-#TODO: Replace following
-cat > $OUTPUT_FOLDER/output.json << EOF
-{
+# cat > $OUTPUT_FOLDER/output.json << EOF
+# {
 
-    "output_1":"some_stuff"
+#     "output_1":"some_stuff"
 
-}
-EOF
+# }
+# EOF
 

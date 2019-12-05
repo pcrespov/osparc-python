@@ -1,12 +1,9 @@
-FROM alpine:3.7 as base
-#
-#  USAGE:
-#     cd services/osparc-python
-#     docker build -f Dockerfile -t osparc-python:prod --target production ../../
-#     docker run osparc-python:prod
-#
+ARG PYTHON_VERSION=3.8.0
+FROM python:${PYTHON_VERSION}-alpine as base
+
 
 LABEL maintainer=pcrespov
+
 
 # simcore-user uid=8004(${SC_USER_NAME}) gid=8004(${SC_USER_NAME}) groups=8004(${SC_USER_NAME})
 ENV SC_USER_ID 8004
@@ -16,103 +13,55 @@ RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NA
 RUN apk add --no-cache \
       su-exec \
       bash \
-      jq
+      jq \
+      git
 
 # -------------------------- Build stage -------------------
 # Installs build/package management tools and third party dependencies
 #
 # + /build             WORKDIR
 #
-
 FROM base as build
 
 ENV SC_BUILD_TARGET build
 
-# ------------------------------------------------------------------------------------
-#TODO:
-# uncomment and adapt if build dependencies shall be installed
-#RUN apk add --no-cache gcc git
-
-# uncomment and adapt if python necessary
-#RUN $SC_PIP install --upgrade pip wheel setuptools
-# ------------------------------------------------------------------------------------
+RUN pip --no-cache install --upgrade \
+      pip \
+      wheel \
+      setuptools
 
 WORKDIR /build
-# defines the output of the build
-RUN mkdir -p /build/bin
-# copy src code
+
 COPY  src/osparc_python src/osparc_python
-# ------------------------------------------------------------------------------------
-#TODO:
-# uncomment and adapt if build steps are necessary
-# RUN gcc ...
-# ------------------------------------------------------------------------------------
-
-# --------------------------Cache stage -------------------
-# CI in master buils & pushes this target to speed-up image build
-#
-#  + /build
-#    + services/osparc-python [${SC_USER_NAME}:${SC_USER_NAME}] WORKDIR
-#
-FROM build as cache
-
-ENV SC_BUILD_TARGET cache
-
+RUN pip --no-cache install -r src/osparc_python/requirements.txt
 
 
 # --------------------------Production stage -------------------
-# Final cleanup up to reduce image size and startup setup
-# Runs as ${SC_USER_NAME} (non-root user)
-#
-#  + /home/${SC_USER_NAME}     $HOME = WORKDIR
-#    + osparc_python [${SC_USER_NAME}:${SC_USER_NAME}]
-#    + docker [${SC_USER_NAME}:${SC_USER_NAME}]
-#    + service.cli [${SC_USER_NAME}:${SC_USER_NAME}]
-#
 FROM base as production
 
 ENV SC_BUILD_TARGET production
 ENV SC_BOOT_MODE production
 
 
-ENV INPUT_FOLDER="/input" \
-    OUTPUT_FOLDER="/output" \
-    LOG_FOLDER="/log"
+ENV INPUT_FOLDER="/input"
+ENV OUTPUT_FOLDER="/output"
+ENV LOG_FOLDER="/log"
 
 
 WORKDIR /home/${SC_USER_NAME}
-
-# ------------------------------------------------------------------------------------
-#TODO:
-# uncomment and adapt to install runtime dependencies
-#RUN apk add --no-cache ffmpeg
-# ------------------------------------------------------------------------------------
-
-# copy binaries from cache
-RUN mkdir -p osparc_python &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} osparc_python
-COPY --from=cache /build/bin osparc_python
 
 # copy docker bootup scripts
 COPY docker/*.sh docker/
 RUN chmod +x docker/*.sh &&\
       chown ${SC_USER_NAME}:${SC_USER_NAME} docker/*.sh
+
 # copy simcore service cli
 COPY service.cli/ service.cli/
 RUN chmod +x service.cli/* &&\
       chown ${SC_USER_NAME}:${SC_USER_NAME} service.cli/*
+
 # necessary to be able to call run directly without sh in front
 ENV PATH="/home/${SC_USER_NAME}/service.cli:${PATH}"
-
-# ------------------------------------------------------------------------------------
-#TODO:
-# uncomment and provide a healtchecker if possible
-# HEALTHCHECK --interval=30s \
-#             --timeout=120s \
-#             --start-period=30s \
-#             --retries=3 \
-#             CMD ["healthchecker app"]
-# ------------------------------------------------------------------------------------
 
 ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh" ]
 CMD ["/bin/sh", "docker/boot.sh"]

@@ -1,24 +1,38 @@
-version: '3.7'
 services:
   osparc-python:
-    image: ${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest
-    command: run
     build:
       context: ./
       dockerfile: src/Dockerfile
-      target: production
       labels:
-        org.label-schema.schema-version: "1.0"
-        org.label-schema.build-date: "${BUILD_DATE}"
+        io.simcore.authors: '{"authors": [{"name": "Pedro Crespo", "email": "32402063+pcrespov@users.noreply.github.com",
+          "affiliation": "IT''IS Foundation"}]}'
+        io.simcore.contact: '{"contact": "32402063+pcrespov@users.noreply.github.com"}'
+        io.simcore.description: '{"description": "service to run python scripts in
+          osparc-simcore"}'
+        io.simcore.inputs: '{"inputs": {"code": {"displayOrder": 1, "label": "Script
+          Code", "description": "A python script", "type": "string", "defaultValue":
+          "print(''Hello osparc world'')"}, "input_data": {"displayOrder": 2, "label":
+          "Input data", "description": "Data accessible to the script", "type": "data:*/*"}}}'
+        io.simcore.key: '{"key": "simcore/services/comp/osparc-python"}'
+        io.simcore.name: '{"name": "osparc python"}'
+        io.simcore.outputs: '{"outputs": {"output_data": {"displayOrder": 1, "label":
+          "Output Data", "description": "Data produced by the script", "type": "data:*/*"}}}'
+        io.simcore.type: '{"type": "computational"}'
+        io.simcore.version: '{"version": "0.1.0"}'
+        org.label-schema.build-date: ${BUILD_DATE}
+        org.label-schema.schema-version: '1.0'
+        org.label-schema.vcs-ref: ${VCS_REF}
         org.label-schema.vcs-url: git@github.com:pcrespov/osparc-python.git
-        org.label-schema.vcs-ref: "${VCS_REF}"
+      target: production
+    command: run
     environment:
-      - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - LOG_FOLDER=/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - LOG_FOLDER=/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    image: ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
     init: true
     volumes:
-      # some defaults to test the service
-      - ./validation/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - ./tmp/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - ./tmp/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ./validation/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ./tmp/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ./tmp/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+version: '3.7'
