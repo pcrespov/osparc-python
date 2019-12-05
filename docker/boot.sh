@@ -30,4 +30,4 @@ else
   echo "running in release mode..."
 fi
 
-/bin/sh
+exec /bin/bash

@@ -1,13 +1,16 @@
-#!/bin/sh
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+#!/bin/bash
+
+set -e
+#uo pipefail
 IFS=$'\n\t'
+
 # This entrypoint script:
 #
 # - Executes *inside* of the container upon start as --user [default root]
 # - Notice that the container *starts* as --user [default root] but
 #   *runs* as non-root user [$SC_USER_NAME]
 #
+
 echo "Entrypoint for stage ${SC_BUILD_TARGET} ..."
 echo "  User    :`id $(whoami)`"
 echo "  Workdir :`pwd`"
@@ -42,6 +45,7 @@ fi
 USERID=$(stat -c %u $INPUT_FOLDER)
 GROUPID=$(stat -c %g $INPUT_FOLDER)
 GROUPNAME=$(getent group ${GROUPID} | cut -d: -f1)
+
 if [[ $USERID -eq 0 ]]
 then
     echo "Warning: Folder mounted owned by root user... adding $SC_USER_NAME to root..."
@@ -51,8 +55,8 @@ else
     # take host's credentials in $SC_USER_NAME
     if [[ -z "$GROUPNAME" ]]
     then
-        echo "Creating new group my$SC_USER_NAME"
-        GROUPNAME=my$SC_USER_NAME
+        echo "Creating new group ${SC_USER_NAME}grp"
+        GROUPNAME=${SC_USER_NAME}grp
         addgroup -g $GROUPID $GROUPNAME
         # change group property of files already around
         find / -group $SC_USER_ID -exec chgrp -h $GROUPNAME {} \;
@@ -73,26 +77,6 @@ else
 fi
 
 
-
-
-# Appends docker group if socket is mounted
-DOCKER_MOUNT=/var/run/docker.sock
-
-if [[ -e $DOCKER_MOUNT && stat $DOCKER_MOUNT &> /dev/null && $? -eq 0 ]]
-then
-    GROUPID=$(stat -c %g $DOCKER_MOUNT)
-    
-    GROUPNAME=scdocker
-
-    addgroup -g $GROUPID $GROUPNAME &> /dev/null
-    if [[ $? -gt 0 ]]
-    then
-        # if group already exists in container, then reuse name
-        GROUPNAME=$(getent group ${GROUPID} | cut -d: -f1)
-    fi
-    addgroup $SC_USER_NAME $GROUPNAME
-fi
-
 echo "Starting $@ ..."
 echo "  $SC_USER_NAME rights    :`id $SC_USER_NAME`"
 echo "  local dir :`ls -al`"
@@ -100,4 +84,4 @@ echo "  input dir :`ls -al $INPUT_FOLDER`"
 echo "  output dir :`ls -al $OUTPUT_FOLDER`"
 echo "  log dir :`ls -al $LOG_FOLDER`"
 
-su-exec $SC_USER_NAME "$@"
+exec su-exec $SC_USER_NAME "$@"

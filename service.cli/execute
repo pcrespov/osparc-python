@@ -9,16 +9,16 @@ echo $CODE >code.py
 echo "Generating requirements.txt ...">$LOG_FILE
 pipreqs --savepath=requirements.txt --force code.py
 
-echo "Creating environment ...">$LOG_FILE
+echo "Creating environment ..." >>$LOG_FILE
 python3 -m venv .venv
 .venv/bin/pip install -U pip wheel
-.venv/vin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements.txt
 
-echo "Executing code ....">$LOG_FILE
+echo "Executing code ....">>$LOG_FILE
 .venv/bin/python3 code.py \
     >>$LOG_FILE 2>&1
 
-echo "DONE">$LOG_FILE
+echo "DONE">>$LOG_FILE
 
 
 

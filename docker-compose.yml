@@ -23,7 +23,6 @@ services:
         org.label-schema.schema-version: '1.0'
         org.label-schema.vcs-ref: ${VCS_REF}
         org.label-schema.vcs-url: git@github.com:pcrespov/osparc-python.git
-      target: production
     command: run
     environment:
     - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
@@ -32,7 +31,7 @@ services:
     image: ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
     init: true
     volumes:
-    - ./validation/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-    - ./tmp/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-    - ./tmp/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ${STORAGE_VOLUME:-./validation}/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ${STORAGE_VOLUME:-./validation}/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+    - ${STORAGE_VOLUME:-./validation}/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
 version: '3.7'

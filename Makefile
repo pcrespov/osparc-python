@@ -42,29 +42,36 @@ METADATA_DIR     := docker/labels
 METADATA_SOURCES := $(shell find ${METADATA_DIR}/ -type f -name '*.json')
 RUN_SCRIPT       := service.cli/do_run
 
+${RUN_SCRIPT}: ${METADATA_SOURCES}
+	@.venv/bin/python3 tools/run_creator.py --folder ${METADATA_DIR} --runscript $@
+
 docker-compose.yml: ${METADATA_SOURCES}
 	@.venv/bin/python3 tools/update_compose_labels.py --input ${METADATA_DIR} --compose $@
 
 docker-compose-final.yml : docker-compose.yml
-	@docker-compose -f $< config > $@
-
-${RUN_SCRIPT}: ${METADATA_SOURCES}
-	@.venv/bin/python3 tools/run_creator.py --folder ${METADATA_DIR} --runscript $@
+	docker-compose -f $< config > $@
 
 
 .PHONY: build
 build: docker-compose-final.yml ${RUN_SCRIPT} ## Builds image
-	docker-compose -f $< build --parallel
+	# building ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
+	docker-compose -f $< build osparc-python
+
+
+.PHONY: shell
+shell: docker-compose-final.yml
+	docker-compose -f $< run osparc-python /bin/bash
 
 
 .PHONY: up
 up: docker-compose-final.yml ## Starts service
 	docker-compose -f $< up
+	@touch $<
 
 .PHONY: down
 down: docker-compose-final.yml ## Stops service
 	@docker-compose -f $< down
-
+	@touch $<
 
 
 .PHONY: unit-test integration-test
