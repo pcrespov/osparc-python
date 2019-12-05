@@ -32,21 +32,22 @@ help: ## help on rule's targets
 	# building python's virtual environment
 	@python3 -m venv .venv
 	# upgrading installing managers
-	@$</bin/pip3 install --upgrade \
+	@$</bin/pip install --upgrade \
 		pip \
 		wheel \
 		setuptools
 
+
 devenv: .venv tools/requirements.txt tests/requirements.txt ## build virtual env and installs development tools in it
 	# installing linters, formatters, ... for vscode
-	@$</bin/pip3 install \
+	@$</bin/pip install \
 		pylint \
 		autopep8 \
 		rope
 	# installing tooling
-	@$</bin/pip3 install -r tools/requirements.txt
+	@$</bin/pip install -r tools/requirements.txt
 	# installing testing
-	@$</bin/pip3 install -r tests/requirements.txt
+	@$</bin/pip install -r tests/requirements.txt
 	@echo "To activate the venv, execute 'source $</bin/activate'"
 
 
