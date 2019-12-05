@@ -1,10 +1,12 @@
+import json
+import os
+from pathlib import Path
+
 import yaml
 
-data = {
-    'x': 123,
-    'y': 123
-}
+indir = Path(os.environ['INPUT_FOLDER']).resolve()
+outdir = Path(os.environ['OUTPUT_FOLDER']).resolve()
 
-with open('output.yml', 'wt') as fh:
+with open(outdir / 'output_data.yml', 'wt') as fh:
+    data = json.loads((indir / "input.json").read_text())
     yaml.safe_dump(data, fh)
-

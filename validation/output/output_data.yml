@@ -1,0 +1,5 @@
+code: "import json\nimport os\nfrom pathlib import Path\n\nimport yaml\n\nindir =\
+  \ Path(os.environ['INPUT_FOLDER']).resolve()\noutdir = Path(os.environ['OUTPUT_FOLDER']).resolve()\n\
+  \nwith open(outdir / 'output_data.yml', 'wt') as fh:\n    data = json.loads((indir\
+  \ / \"input.json\").read_text())\n    yaml.safe_dump(data, fh)\n"
+input_data: sample.py

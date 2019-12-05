@@ -5,10 +5,11 @@ IFS=$'\n\t'
 
 cd $OUTPUT_FOLDER
 # echo $CODE >code.py
-cat $INPUT_FOLDER/input.json | jq -r '.code' >code.py
+mkdir -p src
+cat $INPUT_FOLDER/input.json | jq -r '.code' >src/code.py
 
 echo "Generating requirements.txt ..." | tee $LOG_FILE
-pipreqs --savepath=requirements.txt --force code.py
+pipreqs --savepath=requirements.txt --force src
 
 echo "Creating environment ..." | tee -a $LOG_FILE
 python3 -m venv .venv
@@ -16,7 +17,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 
 echo "Executing code ...." | tee -a $LOG_FILE
-.venv/bin/python3 code.py 2>>&1 | tee -a $LOG_FILE
+.venv/bin/python3 src/code.py 2>&1 | tee -a $LOG_FILE
 
 
 echo "DONE" | tee -a $LOG_FILE
