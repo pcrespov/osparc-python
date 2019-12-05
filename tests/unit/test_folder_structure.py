@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 def test_docker_dir(docker_dir: Path):
-    labels_dir = docker_dir / "labels" 
+    labels_dir = docker_dir / "labels"
     assert labels_dir.exists()
 
     labels = list(labels_dir.glob("*.json"))
@@ -28,7 +28,7 @@ def test_package_dir(src_dir: Path):
 
 def test_slug_dir(project_slug_dir: Path):
     assert Path(project_slug_dir / ".bumpversion.cfg").exists()
-    assert Path(project_slug_dir / ".env-devel").exists()
+    #assert Path(project_slug_dir / ".env-devel").exists()
     assert Path(project_slug_dir / "docker-compose.yml").exists()
     assert Path(project_slug_dir / "Makefile").exists()
     assert Path(project_slug_dir / "README.md").exists()

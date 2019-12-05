@@ -7,10 +7,13 @@ export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clea
 
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-## ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
+SERVICE_NAME    := osparc-python
+SERVICE_VERSION := $(shell cat VERSION)
+
 export DOCKER_IMAGE_NAMESPACE ?= local/simcore/services/comp
 export DOCKER_IMAGE_TAG ?= production
 
+DOCKER_IMAGE_NAME = ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 
 .PHONY: help
 help: ## help on rule's targets
@@ -20,13 +23,13 @@ help: ## help on rule's targets
 .venv:
 	# building python's virtual environment
 	@python3 -m venv .venv
-
-devenv: .venv ## build virtual env and installs development tools in it
 	# upgrading installing managers
 	@$</bin/pip3 install --upgrade \
 		pip \
 		wheel \
 		setuptools
+
+devenv: .venv tools/requirements.txt tests/requirements.txt ## build virtual env and installs development tools in it
 	# installing linters, formatters, ... for vscode
 	@$</bin/pip3 install \
 		pylint \
@@ -34,6 +37,8 @@ devenv: .venv ## build virtual env and installs development tools in it
 		rope
 	# installing tooling
 	@$</bin/pip3 install -r tools/requirements.txt
+	# installing testing
+	@$</bin/pip3 install -r tests/requirements.txt
 	@echo "To activate the venv, execute 'source $</bin/activate'"
 
 
@@ -56,11 +61,22 @@ docker-compose-final.yml : docker-compose.yml
 build: docker-compose-final.yml ${RUN_SCRIPT} ## Builds image
 	# building ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
 	docker-compose -f $< build osparc-python
+	@touch $<
 
 
 .PHONY: shell
 shell: docker-compose-final.yml
 	docker-compose -f $< run osparc-python /bin/bash
+	@touch $<
+
+
+.PHONY: unit-test
+unit-test: ## Runs unit tests [w/ fail fast]
+	@pytest -vv -x --ff tests/unit
+
+.PHONY: integration-test
+integration-test: build ## Runs integration tests [w/ fail fast] (needs built container)
+	@pytest -vv -x --ff tests/integration
 
 
 .PHONY: up
@@ -72,14 +88,6 @@ up: docker-compose-final.yml ## Starts service
 down: docker-compose-final.yml ## Stops service
 	@docker-compose -f $< down
 	@touch $<
-
-
-.PHONY: unit-test integration-test
-unit-test: ## Runs unit tests [w/ fail fast]
-	pytest -x -v --junitxml=pytest_unittest.xml --log-level=warning tests/unit
-
-integration-test: ## Runs integration tests [w/ fail fast] (needs built container)
-	pytest -x -v --junitxml=pytest_integrationtest.xml --log-level=warning tests/integration
 
 
 .PHONY: push-release push
@@ -134,17 +142,6 @@ pull:
 regenerate_cookiecutter:
 	pip install cookiecutter
 	cookiecutter  --no-input --overwrite-if-exists --config-file=.cookiecutterrc gh:ITISFoundation/cookiecutter-osparc-service --output-dir ../
-
-.PHONY: info
-# target: info – Displays some parameters of makefile environments
-info:
-	@echo '+ VCS_* '
-	@echo '  - ULR                : ${VCS_URL}'
-	@echo '  - REF                : ${VCS_REF}'
-	@echo '  - (STATUS)REF_CLIENT : (${VCS_STATUS_CLIENT})'
-	@echo '+ BUILD_DATE           : ${BUILD_DATE}'
-	@echo '+ OS_VERSION           : ${OS_VERSION}'
-	@echo '+ DOCKER_REGISTRY      : ${DOCKER_REGISTRY}'
 
 
 .PHONY: clean
