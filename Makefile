@@ -149,5 +149,6 @@ info:
 
 .PHONY: clean
 clean:
-	echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-n} = y ]
+	@git clean -dnXf -e .vscode/
+	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-n} = y ]
 	@git clean -dXf -e .vscode/
