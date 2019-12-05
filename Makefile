@@ -10,10 +10,18 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SERVICE_NAME    := osparc-python
 SERVICE_VERSION := $(shell cat VERSION)
 
-export DOCKER_IMAGE_NAMESPACE ?= local/simcore/services/comp
-export DOCKER_IMAGE_TAG ?= production
+export DOCKER_REGISTRY  ?= local
+export DOCKER_IMAGE_TAG ?= latest
 
-DOCKER_IMAGE_NAME = ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
+ifeq (${DOCKER_REGISTRY}, itisfoundation)
+	export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}
+else
+	export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}/simcore/services/comp
+endif
+
+# ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
+
+CMD_ARGUMENTS ?= $(cmd)
 
 .PHONY: help
 help: ## help on rule's targets
@@ -59,14 +67,14 @@ docker-compose-final.yml : docker-compose.yml
 
 .PHONY: build
 build: docker-compose-final.yml ${RUN_SCRIPT} ## Builds image
-	# building ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
+	# building ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 	docker-compose -f $< build osparc-python
 	@touch $<
 
 
 .PHONY: shell
 shell: docker-compose-final.yml
-	docker-compose -f $< run osparc-python /bin/bash
+	@docker-compose -f $< run osparc-python /bin/bash $(if $(CMD_ARGUMENTS),-c "$(CMD_ARGUMENTS)",)
 	@touch $<
 
 
@@ -88,6 +96,10 @@ up: docker-compose-final.yml ## Starts service
 down: docker-compose-final.yml ## Stops service
 	@docker-compose -f $< down
 	@touch $<
+
+
+
+
 
 
 .PHONY: push-release push
@@ -120,11 +132,13 @@ check-release:
 
 push:
 	# push both latest and :$$SERVICE_VERSION tags
-	docker login ${DOCKER_REGISTRY};\
+	docker login ${DOCKER_REGISTRY}
+	# tagging with version
 	SERVICE_VERSION=$$(cat VERSION);\
 	docker tag \
 		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION;\
+		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION
+
 	docker push \
 		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION;\
 	docker push \

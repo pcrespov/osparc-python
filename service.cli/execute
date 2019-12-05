@@ -4,21 +4,22 @@ set -euo pipefail
 IFS=$'\n\t'
 
 cd $OUTPUT_FOLDER
-echo $CODE >code.py
+# echo $CODE >code.py
+cat $INPUT_FOLDER/input.json | jq -r '.code' >code.py
 
-echo "Generating requirements.txt ...">$LOG_FILE
+echo "Generating requirements.txt ..." | tee $LOG_FILE
 pipreqs --savepath=requirements.txt --force code.py
 
-echo "Creating environment ..." >>$LOG_FILE
+echo "Creating environment ..." | tee -a $LOG_FILE
 python3 -m venv .venv
 .venv/bin/pip install -U pip wheel
 .venv/bin/pip install -r requirements.txt
 
-echo "Executing code ....">>$LOG_FILE
-.venv/bin/python3 code.py \
-    >>$LOG_FILE 2>&1
+echo "Executing code ...." | tee -a $LOG_FILE
+.venv/bin/python3 code.py 2>>&1 | tee -a $LOG_FILE
 
-echo "DONE">>$LOG_FILE
+
+echo "DONE" | tee -a $LOG_FILE
 
 
 

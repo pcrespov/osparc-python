@@ -1,3 +1,4 @@
 {
-    "code": "print('hoi osparc')"
+  "code": "import yaml\n\ndata = {\n    'x': 123,\n    'y': 123\n}\n\nwith open('output.yml', 'wt') as fh:\n    yaml.safe_dump(data, fh)\n\n",
+  "input_data": "sample.py"
 }

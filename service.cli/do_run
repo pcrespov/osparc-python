@@ -7,7 +7,7 @@ set -euo pipefail
 IFS=$'
 	'
 _json_input=$INPUT_FOLDER/input.json
-export CODE=$(cat $_json_input | jq -r '.code')
+export CODE=$(cat $_json_input | jq '.code')
 export INPUT_DATA=$INPUT_FOLDER/input_data
 export LOG_FILE=$LOG_FOLDER/log.dat
 bash execute
