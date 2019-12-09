@@ -130,3 +130,6 @@ dmypy.json
 
 docker-compose-final.yml
 validation/output/src/code.py
+
+
+.tmp

@@ -1,5 +1,6 @@
 services:
-  py-datascience:
+
+  py3-datascience:
     image: itisfoundation/python-datascience:3.8
     build:
       context: .

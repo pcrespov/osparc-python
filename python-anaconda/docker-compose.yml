@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  python-anaconda:
+    image: ${DOCKER_IMAGE_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      labels:
+        swiss.itis.python.requirements: ${PIP_REQUIREMENTS}
+        # http://label-schema.org/rc1/
+        org.label-schema.build-date: ${BUILD_DATE}
+        org.label-schema.name: ${APP_NAME}
+        #org.label-schema.description: ${APP_DESCRIPTION}
+        #org.label-schema.usage: ${APP_USAGE}
+        #org.label-schema.url: ${APP_URL}
+        org.label-schema.vcs-ref: ${VCS_REF}
+        org.label-schema.vcs-url: ${VCS_URL}
+        org.label-schema.vendor: "IT'IS Foundation"
+        org.label-schema.version: ${APP_VERSION}
+        org.label-schema.schema-version: '1.0'
+        #org.label-schema.docker.cmd: ${DOCKER_CMD}
+        #org.label-schema.docker.cmd.devel: ${DOCKER_CMD_DEVEL}
+        #org.label-schema.docker.cmd.test: ${DOCKER_CMD_TEST}
+        #org.label-schema.docker.cmd.debug: ${DOCKER_CMD_DEBUG}
+        #org.label-schema.docker.cmd.help: ${DOCKER_CMD_HELP}
+        #org.label-schema.docker.params: ${DOCKER_PARAMS}
