@@ -12,8 +12,8 @@ echo "Generating requirements.txt ..." | tee $LOG_FILE
 pipreqs --savepath=requirements.txt --force src | tee -a $LOG_FILE
 
 echo "Creating environment ..." | tee -a $LOG_FILE
-python3 -m venv .venv
-.venv/bin/pip install -U pip wheel
+python3 -m venv --system-site-packages --symlinks --upgrade .venv
+.venv/bin/pip install -U pip wheel setuptools
 .venv/bin/pip install -r requirements.txt | tee -a $LOG_FILE
 
 echo "Executing code ...." | tee -a $LOG_FILE
