@@ -1,4 +1,10 @@
 services:
+  py-datascience:
+    image: itisfoundation/python-datascience:3.8
+    build:
+      context: .
+      dockerfile: py3-datascience/Dockerfile
+
   osparc-python:
     build:
       context: ./
