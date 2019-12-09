@@ -32,7 +32,7 @@ help: ## help on rule's targets
 	# building python's virtual environment
 	@python3 -m venv .venv
 	# upgrading installing managers
-	@$</bin/pip install --upgrade \
+	@.venv/bin/pip install --upgrade \
 		pip \
 		wheel \
 		setuptools
@@ -77,6 +77,11 @@ build: docker-compose-final.yml ${RUN_SCRIPT} ## Builds image
 shell: docker-compose-final.yml
 	@docker-compose -f $< run osparc-python /bin/bash $(if $(CMD_ARGUMENTS),-c "$(CMD_ARGUMENTS)",)
 	@touch $<
+
+
+label: docker-compose-final.yml
+	docker-compose -f << run osparc-python pip list --format json
+
 
 
 .PHONY: unit-test

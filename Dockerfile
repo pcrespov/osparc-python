@@ -1,41 +1,37 @@
 ARG PYTHON_VERSION=3.8.0
 FROM python:${PYTHON_VERSION}-alpine as base
 
-
 LABEL maintainer=pcrespov
 
 ENV SC_USER_ID 8004
 ENV SC_USER_NAME scu
+ENV INPUT_FOLDER  "/input"
+ENV OUTPUT_FOLDER "/output"
+ENV LOG_FOLDER    "/log"
+
 
 RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NAME}
 
-# SEE https://hub.docker.com/r/o76923/alpine-numpy-stack/dockerfile
+COPY requirements.txt /requirements.txt
 
-RUN apk --no-cache add --virtual build-deps \
+# SEE https://hub.docker.com/r/o76923/alpine-numpy-stack/dockerfile
+RUN apk --no-cache add \
             su-exec \
             bash \
             jq \
             git \
+      && pip --no-cache-dir install --upgrade \
+            pip \
+            wheel \
+            setuptools \
+      && apk --no-cache add --virtual build-deps \
             musl-dev \
             linux-headers \
             g++ \
             openblas-dev \
-   && ln -s /usr/include/locale.h /usr/include/xlocale.h \
-   && pip --no-cache-dir install --upgrade \
-            pip \
-            wheel \
-            setuptools \
-   && apk --no-cache del --purge build-deps
-
-RUN pip --no-cache-dir install \
-      pipreqs
-
-ENV SC_BUILD_TARGET production
-ENV SC_BOOT_MODE production
-
-ENV INPUT_FOLDER="/input"
-ENV OUTPUT_FOLDER="/output"
-ENV LOG_FOLDER="/log"
+      && ln -s /usr/include/locale.h /usr/include/xlocale.h \
+      && pip install -r /requirements.txt \
+      && apk --no-cache del --purge build-deps
 
 WORKDIR /home/${SC_USER_NAME}
 
