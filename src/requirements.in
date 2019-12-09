@@ -1,8 +1,8 @@
 # base
 numpy
+scipy
 pandas
 matplotlib
-scipy
 seaborn
 
 # tools

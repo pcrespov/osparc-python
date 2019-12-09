@@ -12,9 +12,10 @@ ENV LOG_FOLDER    "/log"
 
 RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NAME}
 
-COPY requirements.txt /requirements.txt
-
+# Some references:
 # SEE https://hub.docker.com/r/o76923/alpine-numpy-stack/dockerfile
+# SEE https://gist.github.com/orenitamar/f29fb15db3b0d13178c1c4dd611adce2
+COPY src/requirements.txt /requirements.txt
 RUN apk --no-cache add \
             su-exec \
             bash \
@@ -25,13 +26,17 @@ RUN apk --no-cache add \
             wheel \
             setuptools \
       && apk --no-cache add --virtual build-deps \
+            build-base \
             musl-dev \
             linux-headers \
             g++ \
+            freetype-dev \
+            libpng-dev \
             openblas-dev \
       && ln -s /usr/include/locale.h /usr/include/xlocale.h \
       && pip install -r /requirements.txt \
       && apk --no-cache del --purge build-deps
+
 
 WORKDIR /home/${SC_USER_NAME}
 
