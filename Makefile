@@ -11,7 +11,7 @@ SERVICE_NAME    := osparc-python
 SERVICE_VERSION := $(shell cat VERSION)
 
 export DOCKER_REGISTRY  ?= local
-export DOCKER_IMAGE_TAG ?= latest
+export DOCKER_IMAGE_TAG ?= production
 
 ifeq (${DOCKER_REGISTRY}, itisfoundation)
 	export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}
@@ -137,11 +137,11 @@ push:
 	# tagging with version
 	SERVICE_VERSION=$$(cat VERSION);\
 	docker tag \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION
+		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:latest \
+		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${SERVICE_VERSION}
 
 	docker push \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION;\
+		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:latest
 	docker push \
 		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest;
 

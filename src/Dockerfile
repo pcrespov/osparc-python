@@ -9,15 +9,23 @@ ENV SC_USER_NAME scu
 
 RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NAME}
 
-RUN apk add --no-cache \
+# SEE https://hub.docker.com/r/o76923/alpine-numpy-stack/dockerfile
+
+RUN apk --no-cache add --virtual build-deps \
             su-exec \
             bash \
             jq \
             git \
+            musl-dev \
+            linux-headers \
+            g++ \
+            openblas-dev \
+   && ln -s /usr/include/locale.h /usr/include/xlocale.h \
    && pip --no-cache-dir install --upgrade \
             pip \
             wheel \
-            setuptools
+            setuptools \
+   && apk --no-cache del --purge build-deps
 
 RUN pip --no-cache-dir install \
       pipreqs
