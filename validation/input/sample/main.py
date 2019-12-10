@@ -17,7 +17,7 @@ import seaborn as sns
 current_dir = Path(sys.argv[0] if __name__ == "__main__" else __file__).resolve().parent
 
 RAW_DATA = current_dir / 'data' / 'results.pkl'
-OUTPUTS_DIR = current_dir / 'outputs'
+OUTPUTS_DIR = os.environ("OUTPUT_FOLDER", current_dir / 'outputs')
 
 assert os.path.exists(RAW_DATA)
 if not os.path.exists(OUTPUTS_DIR):
@@ -26,7 +26,7 @@ if not os.path.exists(OUTPUTS_DIR):
 results = pickle.load(open(RAW_DATA, 'rb'), encoding='latin1')
 
 
-def highlight_max(data, color='yellow'):
+def highlight_max(data, _color='yellow'):
     '''
     highlight the maximum in a Series or DataFrame
     # https://stackoverflow.com/questions/45606458/python-pandas-highlighting-maximum-value-in-column
