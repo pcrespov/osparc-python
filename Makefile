@@ -105,6 +105,7 @@ up: docker-compose-final.yml ## Starts service
 
 .PHONY: down
 down: docker-compose-final.yml ## Stops service
+	# running ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 	@docker-compose -f $< down
 	@touch $<
 
