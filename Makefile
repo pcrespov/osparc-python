@@ -80,7 +80,7 @@ shell: docker-compose-final.yml
 
 
 label: docker-compose-final.yml
-	docker-compose -f << run osparc-python pip list --format json
+	docker-compose -f << run osparc-python pip list --format=json
 
 
 
@@ -95,6 +95,7 @@ integration-test: build ## Runs integration tests [w/ fail fast] (needs built co
 
 .PHONY: up
 up: docker-compose-final.yml ## Starts service
+	$(MAKE) -C validation clean input
 	docker-compose -f $< up
 	@touch $<
 
@@ -105,57 +106,8 @@ down: docker-compose-final.yml ## Stops service
 
 
 
-
-
-
-.PHONY: push-release push
-push-release: check-release check-pull push
-
-check-pull:
-	# check if the service is already online
-	@docker login ${DOCKER_REGISTRY};\
-	SERVICE_VERSION=$$(cat VERSION);\
-	docker pull \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:$$SERVICE_VERSION; \
-	if [ $$? -eq 0 ] ; then \
-		echo "image already in registry ${DOCKER_REGISTRY}";\
-		false;\
-	else \
-		echo "no image available"; \
-	fi;
-
-check-release:
-	# check if this is a releasable version number. Major shall be > 0
-	@MAJOR_VERSION=$$(cut -f 1 -d '.' VERSION);\
-	echo $$MAJOR_VERSION;\
-	if [ $$MAJOR_VERSION -eq 0 ] ; then \
-		echo "Service major is below 1!!"; \
-		false; \
-	else\
-		echo "Service is releasable";\
-	fi
-
-
-push:
-	# push both latest and :$$SERVICE_VERSION tags
-	docker login ${DOCKER_REGISTRY}
-	# tagging with version
-	SERVICE_VERSION=$$(cat VERSION);\
-	docker tag \
-		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:latest \
-		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${SERVICE_VERSION}
-
-	docker push \
-		${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:latest
-	docker push \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest;
-
-pull:
-	# pull latest service version if available
-	docker pull \
-		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:latest || true;
-
-
+tag-version:
+	docker tag local/simcore/services/comp/${SERVICE_NAME}:production ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${SERVICE_VERSION}
 
 
 .PHONY: regenerate_cookiecutter

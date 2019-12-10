@@ -142,8 +142,10 @@ def setup():
 
 def teardown():
     logger.info("Zipping output ....")
+
+    #TODO: sync zipped name with docker/labels/outputs.json
     with tempfile.TemporaryDirectory() as tmpdir:
-        zipped_file = Path(f"{tmpdir}/output.zip")
+        zipped_file = Path(f"{tmpdir}/output_data.zip")
         with zipfile.ZipFile(str(zipped_file), "w", zipfile.ZIP_DEFLATED) as zh:
             zipdir(output_dir, zh)
 
@@ -151,7 +153,7 @@ def teardown():
         clean_dir(output_dir)
 
         logger.info("Moving %s", zipped_file.name)
-        shutil.move(zipped_file, output_dir)
+        shutil.move(str(zipped_file), str(output_dir))
 
 
 if __name__ == "__main__":

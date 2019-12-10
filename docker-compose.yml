@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   osparc-python:
     build:
@@ -15,8 +14,9 @@ services:
           requirements or data", "type": "data:*/*"}}}'
         io.simcore.key: '{"key": "simcore/services/comp/osparc-python"}'
         io.simcore.name: '{"name": "osparc python"}'
-        io.simcore.outputs: '{"outputs": {"output_data.yml": {"displayOrder": 1, "label":
-          "Output Data", "description": "Data produced by the script", "type": "data:*/*"}}}'
+        io.simcore.outputs: '{"outputs": {"output_data": {"displayOrder": 1, "label":
+          "Output Data", "description": "Data produced by the script", "type": "data:*/*",
+          "fileToKeyMap": {"output_data.zip": "output_data"}}}}'
         io.simcore.type: '{"type": "computational"}'
         io.simcore.version: '{"version": "0.1.0"}'
         org.label-schema.build-date: ${BUILD_DATE}
@@ -34,3 +34,4 @@ services:
     - ${STORAGE_VOLUME:-./validation}/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+version: '3.7'

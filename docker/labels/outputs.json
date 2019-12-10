@@ -1,10 +1,13 @@
 {
     "outputs": {
-        "output_data.yml": {
+        "output_data": {
             "displayOrder": 1,
             "label": "Output Data",
             "description": "Data produced by the script",
-            "type": "data:*/*"
+            "type": "data:*/*",
+            "fileToKeyMap": {
+                "output_data.zip":"output_data"
+            }
         }
     }
 }
