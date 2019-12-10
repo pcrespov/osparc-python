@@ -17,7 +17,7 @@ import seaborn as sns
 current_dir = Path(sys.argv[0] if __name__ == "__main__" else __file__).resolve().parent
 
 RAW_DATA = current_dir / 'data' / 'results.pkl'
-OUTPUTS_DIR = os.environ("OUTPUT_FOLDER", current_dir / 'outputs')
+OUTPUTS_DIR = os.environ.get("OUTPUT_FOLDER", current_dir / 'outputs')
 
 assert os.path.exists(RAW_DATA)
 if not os.path.exists(OUTPUTS_DIR):
