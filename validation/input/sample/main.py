@@ -2,17 +2,23 @@
 # coding: utf-8
 
 import os
-import numpy as np
 import pickle
 
-import pandas as pd
+import subprocess
+import sys
+from pathlib import Path
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 import imgkit
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
-RAW_DATA = r'./data/results.pkl'
-OUTPUTS_DIR = r'./outputs'
+current_dir = Path(sys.argv[0] if __name__ == "__main__" else __file__).resolve().parent
+
+RAW_DATA = current_dir / 'data' / 'results.pkl'
+OUTPUTS_DIR = current_dir / 'outputs'
+
 assert os.path.exists(RAW_DATA)
 if not os.path.exists(OUTPUTS_DIR):
     os.makedirs(OUTPUTS_DIR)
@@ -589,8 +595,6 @@ for fig in sorted(_ALL_FIGURES, key=lambda x: x['order']):
 with open(os.path.join(OUTPUTS_DIR, 'figures.tex'), 'w') as f:
     f.write(doc_tplt.format(content=''.join(content), preamble=preamble))
 
-# # Render as PDF file
-import subprocess
 latex_filepath = os.path.join(OUTPUTS_DIR, 'figures.tex')
 cmd = ['pdflatex', '-interaction', 'nonstopmode', os.path.basename(latex_filepath)]
 output = subprocess.check_output(cmd, cwd=os.path.dirname(latex_filepath),
