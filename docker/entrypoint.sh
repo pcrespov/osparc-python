@@ -73,7 +73,11 @@ else
     then
         addgroup --gid $GROUPID $GROUPNAME
     fi
-    adduser --disabled-password --gecos "" --uid $USERID --gid $GROUPID --shell /bin/bash $SC_USER_NAME --no-create-home
+    adduser --disabled-password --gecos "" \
+        --uid $USERID \
+        --gid $GROUPID \
+        --shell /bin/bash \
+        $SC_USER_NAME --no-create-home
     chown -R $SC_USER_NAME:$GROUPNAME /home/$SC_USER_NAME
     # change user property of files already around
     find / -path /proc -prune -user $SC_USER_ID -exec chown -h $SC_USER_NAME {} \;

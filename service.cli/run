@@ -10,5 +10,5 @@ python3 /home/${SC_USER_NAME}/src/main.py setup | tee $LOG_FILE
 
 /bin/bash main.sh  | tee -a $LOG_FILE
 
-python3 /home/${SC_USER_NAME}/src/main.py teardown | tee $LOG_FILE
+python3 /home/${SC_USER_NAME}/src/main.py teardown | tee -a $LOG_FILE
 popd
