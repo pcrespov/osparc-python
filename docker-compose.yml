@@ -1,7 +1,8 @@
+version: '3.7'
 services:
   osparc-python:
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile
       labels:
         io.simcore.authors: '{"authors": [{"name": "Pedro Crespo", "email": "32402063+pcrespov@users.noreply.github.com",
@@ -33,9 +34,3 @@ services:
     - ${STORAGE_VOLUME:-./validation}/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-  py3-datascience:
-    build:
-      context: .
-      dockerfile: py3-datascience/Dockerfile
-    image: itisfoundation/python-datascience:3.8
-version: '3.7'

@@ -4,4 +4,4 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-/bin/bash do_run
+exec python3 /home/${SC_USER_NAME}/src/main.py

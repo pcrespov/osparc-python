@@ -81,3 +81,7 @@ def main():
     run_cmd(f"venv/bin/python3 {main_py}")
 
     logger.info("DONE")
+
+
+if __name__ == "__main__":
+    main()
