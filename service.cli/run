@@ -1,7 +1,14 @@
-#!/bin/sh
-# Alpine linux default shell is sh, this is a trick to call a bash script
+#!/bin/bash
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 IFS=$'\n\t'
 
-exec python3 /home/${SC_USER_NAME}/src/main.py
+export LOG_FILE=$LOG_FOLDER/log.dat
+
+pushd $OUTPUT_FOLDER
+python3 /home/${SC_USER_NAME}/src/main.py setup | tee $LOG_FILE
+
+/bin/bash main.sh  | tee -a $LOG_FILE
+
+python3 /home/${SC_USER_NAME}/src/main.py teardown | tee $LOG_FILE
+popd
