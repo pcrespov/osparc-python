@@ -13,7 +13,7 @@ input: sample.zip ## creates input/sample.zip
 
 
 sample.zip: $(objects)
-	python $(CURDIR)/../tools/create-input.py
+	python $(CURDIR)/../tools/setup-validation.py
 
 
 .PHONY: clean

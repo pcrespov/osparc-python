@@ -6,14 +6,16 @@ from pathlib import Path
 import logging
 
 logging.basicConfig(level=logging.INFO)
-log = logging.getLogger()
 
-current_dir = Path(sys.argv[0] if __name__ == "__main__" else __file__).resolve().parent
+current_file = Path(sys.argv[0] if __name__ == "__main__" else __file__).resolve()
+current_dir = current_file.parent
 
 validation_dir = (current_dir / "..").resolve() / "validation"
 input_dir = validation_dir / "input"
 sample_dir = validation_dir / "sample"
 
+
+log = logging.getLogger(current_file.name)
 
 def as_code():
     code_file = validation_dir / "sample" / "main.py"
@@ -36,6 +38,12 @@ def zipdir(dirpath: Path, ziph: zipfile.ZipFile):
 
 
 def main():
+    for name in ('input', 'output', 'log'):
+        log.info("Creating %s folder ... ",name)
+        os.makedirs(validation_dir/name , exist_ok=True)
+
+    assert input_dir == validation_dir/ 'input'
+
     target =  input_dir/"sample.zip"
     log.info("Zipping %s", target)
 
