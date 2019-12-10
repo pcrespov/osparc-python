@@ -2,8 +2,9 @@
 .DEFAULT_GOAL := help
 
 export VCS_URL:=$(shell git config --get remote.origin.url)
-export VCS_REF:=$(shell git rev-parse --short HEAD)
-export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
+export VCS_REF:=$(shell git rev-parse HEAD)
+export VCS_REF_SHORT:=$(shell git rev-parse --short HEAD)
+export VSC_IS_DIRTY:=$(if $(shell git status -s),'modified/untracked','')
 
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -79,10 +80,13 @@ shell: docker-compose-final.yml
 	@touch $<
 
 
+.PHONY: label
 label: docker-compose-final.yml
 	docker-compose -f << run osparc-python pip list --format=json
 
 
+
+# RUN ---
 
 .PHONY: unit-test
 unit-test: ## Runs unit tests [w/ fail fast]
@@ -108,6 +112,15 @@ down: docker-compose-final.yml ## Stops service
 
 tag-version:
 	docker tag local/simcore/services/comp/${SERVICE_NAME}:production ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${SERVICE_VERSION}
+
+
+.PHONY: info
+info: ## info
+	@echo "APP_NAME               = ${APP_NAME}"
+	@echo "APP_VERSION            = ${APP_VERSION}"
+	@echo "DOCKER_IMAGE_NAMESPACE = ${DOCKER_IMAGE_NAMESPACE}"
+	docker image inspect ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG} | jq .[0].Config.Labels
+
 
 
 .PHONY: regenerate_cookiecutter
