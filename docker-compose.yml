@@ -1,11 +1,4 @@
 services:
-
-  py3-datascience:
-    image: itisfoundation/python-datascience:3.8
-    build:
-      context: .
-      dockerfile: py3-datascience/Dockerfile
-
   osparc-python:
     build:
       context: ./
@@ -16,10 +9,9 @@ services:
         io.simcore.contact: '{"contact": "32402063+pcrespov@users.noreply.github.com"}'
         io.simcore.description: '{"description": "service to run python scripts in
           osparc-simcore"}'
-        io.simcore.inputs: '{"inputs": {"code": {"displayOrder": 1, "label": "Script
-          Code", "description": "A python script", "type": "string", "defaultValue":
-          "print(''Hello osparc world'')"}, "input_data": {"displayOrder": 2, "label":
-          "Input data", "description": "Data accessible to the script", "type": "data:*/*"}}}'
+        io.simcore.inputs: '{"inputs": {"input_data": {"displayOrder": 1, "label":
+          "Input data", "description": "Data accessible to the node. Can contain code,
+          requirements or data", "type": "data:*/*"}}}'
         io.simcore.key: '{"key": "simcore/services/comp/osparc-python"}'
         io.simcore.name: '{"name": "osparc python"}'
         io.simcore.outputs: '{"outputs": {"output_data.yml": {"displayOrder": 1, "label":
@@ -41,4 +33,9 @@ services:
     - ${STORAGE_VOLUME:-./validation}/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - ${STORAGE_VOLUME:-./validation}/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+  py3-datascience:
+    build:
+      context: .
+      dockerfile: py3-datascience/Dockerfile
+    image: itisfoundation/python-datascience:3.8
 version: '3.7'

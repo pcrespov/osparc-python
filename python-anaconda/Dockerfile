@@ -3,11 +3,14 @@ FROM continuumio/anaconda3:2019.10
 
 LABEL MAINTAINER="pcrespov"
 
+ENV SC_USER_ID 8004
+ENV SC_USER_NAME scu
+
 
 ## TODO: LABEL swiss.itis.ubuntu.packages="wkhtmltopdf 0.12.5;pdf-latex" ??
 
-
-# TODO: add user
+## TODO: add user
+## Run all with
 
 
 # wkhtmltopdf

@@ -1,16 +1,9 @@
 {
     "inputs": {
-        "code": {
-            "displayOrder": 1,
-            "label": "Script Code",
-            "description": "A python script",
-            "type": "string",
-            "defaultValue": "print('Hello osparc world')"
-        },
         "input_data": {
-            "displayOrder": 2,
+            "displayOrder": 1,
             "label": "Input data",
-            "description": "Data accessible to the script",
+            "description": "Data accessible to the node. Can contain code, requirements or data",
             "type": "data:*/*"
         }
     }
