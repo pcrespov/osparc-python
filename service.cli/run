@@ -6,9 +6,15 @@ IFS=$'\n\t'
 export LOG_FILE=$LOG_FOLDER/log.dat
 
 pushd $OUTPUT_FOLDER
-python3 /home/${SC_USER_NAME}/src/main.py setup | tee $LOG_FILE
+
+echo "[PROGRESS] 0.0"| tee $LOG_FILE
+
+python3 /home/${SC_USER_NAME}/src/main.py setup | tee -a $LOG_FILE
+echo "[PROGRESS] 0.33"| tee $LOG_FILE
 
 /bin/bash main.sh  | tee -a $LOG_FILE
+echo "[PROGRESS] 0.66"| tee $LOG_FILE
 
 python3 /home/${SC_USER_NAME}/src/main.py teardown | tee -a $LOG_FILE
+echo "[PROGRESS] 1.0"| tee -a $LOG_FILE
 popd
