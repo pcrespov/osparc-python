@@ -1,4 +1,3 @@
-# author: Pedro Crespo
 .DEFAULT_GOAL := help
 
 export VCS_URL:=$(shell git config --get remote.origin.url)
@@ -8,21 +7,15 @@ export VSC_IS_DIRTY:=$(if $(shell git status -s),'modified/untracked','')
 
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-SERVICE_NAME    := osparc-python
-SERVICE_VERSION := $(shell cat VERSION)
+export DOCKER_IMAGE_NAMESPACE ?= local
+# ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
 
-export DOCKER_REGISTRY ?= local
-export DOCKER_IMAGE_TAG ?= latest
-export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}/simcore/services/comp
+$(if $(wildcard .env),include .env,)
 
-# ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
-
-CMD_ARGUMENTS ?= $(cmd)
 
 .PHONY: help
 help: ## help on rule's targets
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_- ]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .venv:
 	# building python's virtual environment
@@ -33,19 +26,13 @@ help: ## help on rule's targets
 		wheel \
 		setuptools
 
-
 devenv: .venv tools/requirements.txt tests/requirements.txt ## build virtual env and installs development tools in it
-	# installing linters, formatters, ... for vscode
-	@$</bin/pip install \
-		pylint \
-		autopep8 \
-		rope
 	# installing tooling
 	@$</bin/pip install -r tools/requirements.txt
 	# installing testing
 	@$</bin/pip install -r tests/requirements.txt
+	#
 	@echo "To activate the venv, execute 'source $</bin/activate'"
-
 
 
 METADATA_DIR     := docker/labels
@@ -64,32 +51,19 @@ docker-compose-latest.yml : docker-compose.yml
 
 .PHONY: build
 build: docker-compose-latest.yml ${RUN_SCRIPT} ## Builds image
-	# building local/simcore/services/comp/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
+	# building local/simcore/services/comp/osparc-python:${DOCKER_IMAGE_TAG}
 	docker-compose -f $< build osparc-python
 	@touch $<
 
+
+
+# RUN ---
+CMD_ARGUMENTS ?= $(cmd)
 
 .PHONY: shell
 shell: docker-compose-latest.yml
 	@docker-compose -f $< run osparc-python /bin/bash $(if $(CMD_ARGUMENTS),-c "$(CMD_ARGUMENTS)",)
 	@touch $<
-
-
-.PHONY: label
-label: docker-compose-latest.yml
-	docker-compose -f << run osparc-python pip list --format=json
-
-
-
-# RUN ---
-
-.PHONY: unit-test
-unit-test: ## Runs unit tests [w/ fail fast]
-	@pytest -vv -x --ff tests/unit
-
-.PHONY: integration-test
-integration-test: build ## Runs integration tests [w/ fail fast] (needs built container)
-	@pytest -vv -x --ff tests/integration
 
 
 .PHONY: up
@@ -100,32 +74,46 @@ up: docker-compose-latest.yml ## Starts service
 
 .PHONY: down
 down: docker-compose-latest.yml ## Stops service
-	# running ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
+	# running ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
 	@docker-compose -f $< down
 	@touch $<
 
 
+.PHONY: unit-test
+unit-test: ## Runs unit tests [w/ fail fast]
+	@pytest -vv -x --ff tests/unit
 
-tag-version:
-	# local:latest  --> registry:version
+.PHONY: integration-test
+integration-test: build ## Runs integration tests [w/ fail fast] (needs built container)
+	@pytest -vv -x --ff tests/integration
+
+
+# VERSIONING ---
+SERVICE_VERSION := $(shell cat VERSION)
+
+.PHONY: tag-version
+tag-version: ## image versioning: image built locally
+	# tags local:latest --> registry:${SERVICE_VERSION}
 	docker tag \
-		local/simcore/services/comp/${SERVICE_NAME}:latest \
-		${DOCKER_REGISTRY}/simcore/services/comp/${SERVICE_NAME}:${SERVICE_VERSION}
+		local/osparc-python:latest \
+		${DOCKER_REGISTRY}/simcore/services/comp/osparc-python:${SERVICE_VERSION}
 
 
+.PHONY: patch-version minor-version major-version
+patch-version minor-version major-version: ## commits version as patch (bug fixes not affecting the API), minor/minor (backwards-compatible/INcompatible API addition or changes)
+	# upgrades as $(subst -version,,$@) version, commits and tags
+	@bump2version --verbose --list $(subst -version,,$@)
+	# Last commit and tag
+	@git log -1 --pretty
+	@git tag -l -n1
+
+
+
+# MISC ----
 .PHONY: info
 info: ## info
-	@echo "APP_NAME               = ${APP_NAME}"
-	@echo "APP_VERSION            = ${APP_VERSION}"
-	@echo "DOCKER_IMAGE_NAMESPACE = ${DOCKER_IMAGE_NAMESPACE}"
-	docker image inspect ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG} | jq .[0].Config.Labels
-
-
-
-.PHONY: regenerate_cookiecutter
-regenerate_cookiecutter:
-	pip install cookiecutter
-	cookiecutter  --no-input --overwrite-if-exists --config-file=.cookiecutterrc gh:ITISFoundation/cookiecutter-osparc-service --output-dir ../
+	#
+	docker image inspect local/osparc-python:latest | jq .[0].Config.Labels
 
 
 .PHONY: clean

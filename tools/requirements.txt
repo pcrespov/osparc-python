@@ -1,1 +1,7 @@
 pyyaml
+
+# vscode tooling
+pylint
+autopep8
+rope
+bump2version

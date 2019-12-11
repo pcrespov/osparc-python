@@ -28,7 +28,7 @@ services:
     - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     - LOG_FOLDER=/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-    image: ${DOCKER_IMAGE_NAMESPACE}/osparc-python:${DOCKER_IMAGE_TAG}
+    image: local/osparc-python:latest
     init: true
     volumes:
     - ${STORAGE_VOLUME:-./validation}/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
