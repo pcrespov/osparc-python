@@ -18,7 +18,7 @@ services:
           "Output Data", "description": "Data produced by the script", "type": "data:*/*",
           "fileToKeyMap": {"output_data.zip": "output_data"}}}}'
         io.simcore.type: '{"type": "computational"}'
-        io.simcore.version: '{"version": "0.1.0"}'
+        io.simcore.version: '{"version": "0.1.1"}'
         org.label-schema.build-date: ${BUILD_DATE}
         org.label-schema.schema-version: '1.0'
         org.label-schema.vcs-ref: ${VCS_REF}

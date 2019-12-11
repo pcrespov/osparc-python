@@ -126,7 +126,7 @@ def setup():
         print(f"{venv_dir}/bin/pip install -U pip wheel setuptools", file=fh)
         print(f"{venv_dir}/bin/pip install -r {requirements}", file=fh)
         print(f'echo "Executing code {main_py.name}..."', file=fh)
-        print(f"{venv_dir}/bin/python3 {main_py} | {LOG}", file=fh)
+        print(f"{venv_dir}/bin/python3 {main_py} 2>&1 | {LOG}", file=fh)
         print('echo "DONE ..."', file=fh)
 
     # # TODO: take snapshot
