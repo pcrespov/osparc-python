@@ -11,14 +11,9 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SERVICE_NAME    := osparc-python
 SERVICE_VERSION := $(shell cat VERSION)
 
-export DOCKER_REGISTRY  ?= local
-export DOCKER_IMAGE_TAG ?= production
-
-ifeq (${DOCKER_REGISTRY}, itisfoundation)
-	export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}
-else
-	export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}/simcore/services/comp
-endif
+export DOCKER_REGISTRY ?= local
+export DOCKER_IMAGE_TAG ?= latest
+export DOCKER_IMAGE_NAMESPACE = ${DOCKER_REGISTRY}/simcore/services/comp
 
 # ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 
@@ -63,25 +58,25 @@ ${RUN_SCRIPT}: ${METADATA_SOURCES}
 docker-compose.yml: ${METADATA_SOURCES}
 	@.venv/bin/python3 tools/update_compose_labels.py --input ${METADATA_DIR} --compose $@
 
-docker-compose-final.yml : docker-compose.yml
+docker-compose-latest.yml : docker-compose.yml
 	docker-compose -f $< config > $@
 
 
 .PHONY: build
-build: docker-compose-final.yml ${RUN_SCRIPT} ## Builds image
-	# building ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
+build: docker-compose-latest.yml ${RUN_SCRIPT} ## Builds image
+	# building local/simcore/services/comp/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 	docker-compose -f $< build osparc-python
 	@touch $<
 
 
 .PHONY: shell
-shell: docker-compose-final.yml
+shell: docker-compose-latest.yml
 	@docker-compose -f $< run osparc-python /bin/bash $(if $(CMD_ARGUMENTS),-c "$(CMD_ARGUMENTS)",)
 	@touch $<
 
 
 .PHONY: label
-label: docker-compose-final.yml
+label: docker-compose-latest.yml
 	docker-compose -f << run osparc-python pip list --format=json
 
 
@@ -98,13 +93,13 @@ integration-test: build ## Runs integration tests [w/ fail fast] (needs built co
 
 
 .PHONY: up
-up: docker-compose-final.yml ## Starts service
+up: docker-compose-latest.yml ## Starts service
 	$(MAKE) -C validation clean input
 	docker-compose -f $< up
 	@touch $<
 
 .PHONY: down
-down: docker-compose-final.yml ## Stops service
+down: docker-compose-latest.yml ## Stops service
 	# running ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${DOCKER_IMAGE_TAG}
 	@docker-compose -f $< down
 	@touch $<
@@ -112,7 +107,10 @@ down: docker-compose-final.yml ## Stops service
 
 
 tag-version:
-	docker tag local/simcore/services/comp/${SERVICE_NAME}:production ${DOCKER_IMAGE_NAMESPACE}/${SERVICE_NAME}:${SERVICE_VERSION}
+	# local:latest  --> registry:version
+	docker tag \
+		local/simcore/services/comp/${SERVICE_NAME}:latest \
+		${DOCKER_REGISTRY}/simcore/services/comp/${SERVICE_NAME}:${SERVICE_VERSION}
 
 
 .PHONY: info

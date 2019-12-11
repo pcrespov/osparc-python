@@ -128,7 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-docker-compose-final.yml
+docker-compose-latest.yml
 validation/output/src/code.py
 
 
